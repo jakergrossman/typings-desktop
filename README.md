@@ -1,12 +1,22 @@
-# typings
+# typings-desktop
 
-<a href="https://typings.gg" target="_blank">typings.gg</a> is a sleek and modern typing test website. it supports many custom themes
+[typings.gg](https://typings.gg/) is a sleek and modern typing test website.
+
+`typings-desktop` aims to bring typings.gg to desktop using [electron](https://www.electronjs.org/).
 
 ![typings.gg](img/typings-screen-shot.png)
 
+## settings
+changing settings is done by entering text in the test text box itself, followed by a <kbd>MOD</kbd>+<kbd>KEY</kbd>,
+where `KEY` is the control key specified and `MOD` is:
+
+- <kbd>alt</kbd> on windows
+- <kbd>cmd</kbd>+<kbd>ctrl</kbd> on mac
+- <kbd>super</kbd>+<kbd>ctrl</kbd> or <kbd>alt</kbd> on linux
+
 ## theme
 
-type the theme code for example `dracula` in the text box then hit [ windows: <kbd>alt</kbd> + <kbd>t</kbd> ], [ mac: <kbd>cmd</kbd> + <kbd>ctrl</kbd> + <kbd>t</kbd> ], [ linux: <kbd>super</kbd> + <kbd>ctrl</kbd> + <kbd>t</kbd> or <kbd>alt</kbd> + <kbd>t</kbd> ]
+type the theme (e.g.: `dracula`) in the text box then type <kbd>MOD</kbd>+<kbd>t</kbd>.
 
 available themes:
 
@@ -26,7 +36,7 @@ available themes:
 - `handarbeit` inspired by [Cherry Handarbeit](https://pinchocodia.tistory.com/17)
 - `hyperfuse` inspired by GMK HyperFuse origins by BunnyLake
 - `mizu` inspired by GMK Mizu by u/Rensuya
-- `moderndolch` inspired by GMK Modern Dolch by [Janglad](https://clavier.xyz
+- `moderndolch` inspired by GMK Modern Dolch by [Janglad](https://clavier.xyz)
 - `monokai` inspired by Monokai for TextMate by Wimer Hazenberg
 - `mrsleeves` inspired by GMK Mr. Sleeves by [Taeha Types](https://www.taehatypes.com/)
 - `nord` inspired by [Nord Theme](https://nordtheme.com)
@@ -49,35 +59,35 @@ available themes:
 
 ## Redo
 
-- Hold `shift` while pressing Redo to Restart the typing test using the same word list.
-
-## Redo
-
- - Press `esc` to restart a typing test
+- Press <kbd>Escape</kbd> to restart the typing test.
+- Press <kbd>Shift</kbd>+<kbd>Escape</kbd> to restart the typing test using the same word list.
 
 ## language
 
-type the language code for example `german` in the text box then hit [ windows: <kbd>alt</kbd> + <kbd>l</kbd> ], [ mac: <kbd>cmd</kbd> + <kbd>ctrl</kbd> + <kbd>l</kbd> ], [ linux: <kbd>super</kbd> + <kbd>ctrl</kbd> + <kbd>l</kbd> or <kbd>alt</kbd> + <kbd>l</kbd> ]
+type the language (e.g.: `german`) in the text box then type <kbd>MOD</kbd>+<kbd>l</kbd>
 
 available languages:
 
 - `english`
-- `english1000`
 - `italian`
 - `german`
 - `spanish`
 - `chinese`
 - `korean`
+- `english1000`
 - `polish`
-- `swedish`
 - `dots`
 - `punjabi`
+- `swedish`
 - `french`
+- `arabic`
 - `portuguese`
+- `russian`
+- `finnish`
 
 ## typing mode
 
-type the mode code for example `time` in the text box then hit [ windows: <kbd>alt</kbd> + <kbd>m</kbd> ], [ mac: <kbd>cmd</kbd> + <kbd>ctrl</kbd> + <kbd>m</kbd> ], [ linux: <kbd>super</kbd> + <kbd>ctrl</kbd> + <kbd>m</kbd> or <kbd>alt</kbd> + <kbd>m</kbd> ]
+type the mode (e.g.: `time`) in the text box then type <kbd>MOD</kbd>+<kbd>m</kbd>.
 
 available modes:
 
@@ -86,18 +96,14 @@ available modes:
 
 ## punctuation
 
-type `true` or `false` then hit [ windows: <kbd>alt</kbd> + <kbd>p</kbd> ], [ mac: <kbd>cmd</kbd> + <kbd>ctrl</kbd> + <kbd>p</kbd>], [ linux: <kbd>super</kbd> + <kbd>ctrl</kbd> + <kbd>p</kbd> or <kbd>alt</kbd> + <kbd>p</kbd> ] to activate/deactivate punctuations
+type `true` or `false` in the text box then type <kbd>MOD</kbd>+<kbd>p</kbd>
 
 ## theme menu
 
-in this menu you can see all the available themes to choose from, along with a small preview. hit <kbd>escape</kbd> or click 'back' to exit
+in this menu you can see all the available themes to choose from, along with a small preview. hit <kbd>Escape</kbd> or click 'back' to exit
 
 ## calculations
 
 wpm: total number of characters (including spaces) of words you got right divided by five then divided by the time starting from first character typed
 
 acc: total number of characters (including spaces) of words you got right divided by all character in the list of words
-
-## support
-
-- <a href="https://www.paypal.me/briano1905" target="_blank">PayPal</a>
