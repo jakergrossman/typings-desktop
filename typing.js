@@ -5,12 +5,6 @@
 const textDisplay = document.querySelector('#text-display');
 const inputField = document.querySelector('#input-field');
 
-// Initialize typing mode variables
-let typingMode = 'wordcount';
-let wordCount;
-let timeCount;
-let language;
-
 // Initialize dynamic variables
 let randomWords = [];
 let wordList = [];
@@ -19,18 +13,25 @@ let correctKeys = 0;
 let startDate = 0;
 let timer;
 let timerActive = false;
-let punctuation = false;
 
-// Get cookies
-// TODO: save config on desktop
-getCookie('theme') === '' ? setTheme('light') : setTheme(getCookie('theme'));
-getCookie('language') === '' ? setLanguage('english') : setLanguage(getCookie('language'));
-getCookie('wordCount') === '' ? setWordCount(50) : setWordCount(getCookie('wordCount'));
-getCookie('timeCount') === '' ? setTimeCount(60) : setTimeCount(getCookie('timeCount'));
-getCookie('typingMode') === '' ? setTypingMode('wordcount') : setTypingMode(getCookie('typingMode'));
-getCookie('punctuation') === '' ? setPunctuation('false') : setPunctuation(getCookie('punctuation'));
+let config = window.electronAPI.defaultCookies;
+initConfig();
 
-// Find a list of words and display it to textDisplay
+// propogate configuration to UI, without saving values from config
+function initConfig() {
+  setTheme(config.theme, false);
+  setLanguage(config.language, false);
+  setWordCount(config.wordCount, false);
+  setTimeCount(config.timeCount, false);
+  setTypingMode(config.typingMode, false);
+  setPunctuation(config.punctuation, false);
+}
+
+window.electronAPI.loadCookies().then(cookies => {
+  config = cookies;
+  initConfig();
+});
+
 function setText(e) {
   e = e || window.event;
   var keepWordList = e && e.shiftKey;
@@ -43,7 +44,7 @@ function setText(e) {
   textDisplay.style.display = 'block';
   inputField.className = '';
 
-  remainingWords = typingMode === 'wordcount' ? wordCount : 500;
+  remainingWords = config.typingMode === 'wordcount' ? config.wordCount : 500;
 
   textDisplay.style.maxHeight = '3.2rem';
   textDisplay.innerHTML = '';
@@ -51,18 +52,18 @@ function setText(e) {
     wordList = [];
     while (remainingWords > 0) {
       const randomWord = randomWords[Math.floor(Math.random() * randomWords.length)];
-      if (language === 'dots' || wordList.slice(-1) !== randomWord) {
+      if (config.language === 'dots' || wordList.slice(-1) !== randomWord) {
         wordList.push(randomWord);
         remainingWords--;
       }
     }
   }
 
-  if (typingMode === 'time') {
-    document.querySelector(`#tc-${timeCount}`).innerHTML = timeCount;
+  if (config.typingMode === 'time') {
+    document.querySelector(`#tc-${config.timeCount}`).innerHTML = config.timeCount;
   }
 
-  if (punctuation) addPunctuations();
+  if (config.punctuation) addPunctuations();
   showText();
   inputField.focus();
 }
@@ -111,7 +112,7 @@ function showText() {
 // Key is pressed in input field
 inputField.addEventListener('keydown', e => {
   // Add wrong class to input field
-  switch (typingMode) {
+  switch (config.typingMode) {
     case 'wordcount':
       if (currentWord < wordList.length) inputFieldClass();
     case 'time':
@@ -133,19 +134,19 @@ inputField.addEventListener('keydown', e => {
 
   // If it is the first character entered
   if (currentWord === 0 && inputField.value === '') {
-    switch (typingMode) {
+    switch (config.typingMode) {
       case 'wordcount':
         startDate = Date.now();
         break;
 
       case 'time':
         if (!timerActive) {
-          startTimer(timeCount);
+          startTimer(config.timeCount);
           timerActive = true;
         }
         function startTimer(time) {
           if (time > 0) {
-            document.querySelector(`#tc-${timeCount}`).innerHTML = time;
+            document.querySelector(`#tc-${config.timeCount}`).innerHTML = time;
             timer = setTimeout(() => {
               time--;
               startTimer(time);
@@ -154,7 +155,7 @@ inputField.addEventListener('keydown', e => {
             timerActive = false;
             textDisplay.style.display = 'none';
             inputField.className = '';
-            document.querySelector(`#tc-${timeCount}`).innerHTML = timeCount;
+            document.querySelector(`#tc-${config.timeCount}`).innerHTML = config.timeCount;
             showResult();
           }
         }
@@ -167,7 +168,7 @@ inputField.addEventListener('keydown', e => {
 
     if (inputField.value !== '') {
       // Scroll down text when reach new line
-      if (true || typingMode === 'time') {
+      if (true || config.typingMode === 'time') {
         const currentWordPosition = textDisplay.childNodes[currentWord].getBoundingClientRect();
         const nextWordPosition = textDisplay.childNodes[currentWord + 1].getBoundingClientRect();
         if (currentWordPosition.top < nextWordPosition.top) {
@@ -207,7 +208,7 @@ inputField.addEventListener('keydown', e => {
 // Calculate and display result
 function showResult() {
   let words, minute, acc;
-  switch (typingMode) {
+  switch (config.typingMode) {
     case 'wordcount':
       words = correctKeys / 5;
       minute = (Date.now() - startDate) / 1000 / 60;
@@ -218,7 +219,7 @@ function showResult() {
 
     case 'time':
       words = correctKeys / 5;
-      minute = timeCount / 60;
+      minute = config.timeCount / 60;
       let sumKeys = -1;
       for (i = 0; i < currentWord; i++) {
         sumKeys += wordList[i].length + 1;
@@ -251,6 +252,14 @@ document.addEventListener('keydown', e => {
     if (e.key === 'p') {
       setPunctuation(inputField.value);
     }
+
+    // [mod + c] => Clear config
+    if (e.key === 'c') {
+      window.electronAPI.saveCookies(window.electronAPI.defaultCookies).then(result => {
+        config = result;
+        initConfig();
+      });
+    }
   } else if (!document.querySelector('#theme-center').classList.contains('hidden')) {
     if (e.key === 'Escape'){
       hideThemeCenter();
@@ -261,7 +270,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-function setTheme(_theme) {
+function setTheme(_theme, save=true) {
   const theme = _theme.toLowerCase();
   fetch(`themes/${theme}.css`)
     .then(response => {
@@ -269,7 +278,7 @@ function setTheme(_theme) {
         response
           .text()
           .then(css => {
-            setCookie('theme', theme, 90);
+            if (save) setCookie('theme', theme, 90);
             document.querySelector('#theme').setAttribute('href', `themes/${theme}.css`);
             setText();
           })
@@ -281,14 +290,14 @@ function setTheme(_theme) {
     .catch(err => console.error(err));
 }
 
-function setLanguage(_lang) {
+function setLanguage(_lang, save=true) {
   const lang = _lang.toLowerCase();
   fetch('texts/random.json')
     .then(response => response.json())
     .then(json => {
       if (typeof json[lang] !== 'undefined') {
         randomWords = json[lang];
-        setCookie('language', lang, 90);
+        if (save) setCookie('language', lang, 90);
 
         if (lang === "arabic") {
             textDisplay.style.direction = "rtl"
@@ -298,7 +307,6 @@ function setLanguage(_lang) {
             inputField.style.direction = "ltr"
         }
 
-        language = lang;
         setText();
       } else {
         console.error(`language ${lang} is undefine`);
@@ -307,19 +315,19 @@ function setLanguage(_lang) {
     .catch(err => console.error(err));
 }
 
-function setTypingMode(_mode) {
+function setTypingMode(_mode, save=true) {
   const mode = _mode.toLowerCase();
   switch (mode) {
     case 'wordcount':
-      typingMode = mode;
-      setCookie('typingMode', mode, 90);
+      config.typingMode = mode;
+      if (save) setCookie('typingMode', mode, 90);
       document.querySelector('#word-count').style.display = 'inline';
       document.querySelector('#time-count').style.display = 'none';
       setText();
       break;
     case 'time':
-      typingMode = mode;
-      setCookie('typingMode', mode, 90);
+      config.typingMode = mode;
+      if (save) setCookie('typingMode', mode, 90);
       document.querySelector('#word-count').style.display = 'none';
       document.querySelector('#time-count').style.display = 'inline';
       setText();
@@ -329,59 +337,37 @@ function setTypingMode(_mode) {
   }
 }
 
-function setPunctuation(_punc) {
+function setPunctuation(_punc, save=true) {
   const punc = _punc.toLowerCase();
   if (punc === 'true') {
-    punctuation = true;
-    setCookie('punctuation', true, 90);
+    if (save) setCookie('punctuation', true, 90);
     setText();
   } else if (punc === 'false') {
-    punctuation = false;
-    setCookie('punctuation', false, 90);
+    if (save) setCookie('punctuation', false, 90);
     setText();
   }
 }
 
-function setWordCount(wc) {
-  setCookie('wordCount', wc, 90);
-  wordCount = wc;
+function setWordCount(wc, save=true) {
+  if (save) setCookie('wordCount', wc, 90);
   document.querySelectorAll('#word-count > span').forEach(e => (e.style.borderBottom = ''));
-  document.querySelector(`#wc-${wordCount}`).style.borderBottom = '2px solid';
+  document.querySelector(`#wc-${config.wordCount}`).style.borderBottom = '2px solid';
   setText();
 }
 
-function setTimeCount(tc) {
-  setCookie('timeCount', tc, 90);
-  timeCount = tc;
+function setTimeCount(tc, save=true) {
+  if (save) setCookie('timeCount', tc, 90);
   document.querySelectorAll('#time-count > span').forEach(e => {
     e.style.borderBottom = '';
     e.innerHTML = e.id.substring(3, 6);
   });
-  document.querySelector(`#tc-${timeCount}`).style.borderBottom = '2px solid';
+  document.querySelector(`#tc-${config.timeCount}`).style.borderBottom = '2px solid';
   setText();
 }
 
 function setCookie(cname, cvalue, exdays) {
-  var d = new Date();
-  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-  var expires = 'expires=' + d.toUTCString();
-  document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
-}
-
-function getCookie(cname) {
-  var name = cname + '=';
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for (var i = 0; i < ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return '';
+  config[cname] = cvalue;
+  window.electronAPI.saveCookies(config);
 }
 
 showAllThemes();
@@ -448,5 +434,3 @@ function hideThemeCenter() {
   document.getElementById('theme-center').classList.add('hidden');
   document.getElementById('command-center').classList.remove('hidden');
 }
-
-
