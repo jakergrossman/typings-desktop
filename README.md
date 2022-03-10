@@ -14,6 +14,9 @@ where `KEY` is the control key specified and `MOD` is:
 - <kbd>cmd</kbd>+<kbd>ctrl</kbd> on mac
 - <kbd>super</kbd>+<kbd>ctrl</kbd> or <kbd>alt</kbd> on linux
 
+## reset settings
+to reset settings to the initial configuration, type <kbd>MOD</kbd>+<kbd>c</kbd> at any point in the text box.
+
 ## theme
 
 type the theme (e.g.: `dracula`) in the text box then type <kbd>MOD</kbd>+<kbd>t</kbd>.
